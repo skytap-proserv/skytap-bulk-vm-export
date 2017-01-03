@@ -18,6 +18,11 @@ def list_jobs():
     for job in jobs:
         print job.id, job.vm_name
 
+def delete_jobs():
+    for job in jobs:
+        Exports().delete(job.id)
+
+
 
 if __name__ == '__main__':
 
