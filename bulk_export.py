@@ -14,6 +14,10 @@ def list_vms():
     for vm in template.vms:
         print vm.id
 
+def create_jobs():
+    for vm in template.vms:
+        Exports().create(vm)
+
 def list_jobs():
     for job in jobs:
         print job.id, job.vm_name
