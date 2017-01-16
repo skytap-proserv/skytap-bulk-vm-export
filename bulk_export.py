@@ -53,11 +53,18 @@ def create_jobs(vm_queue):
 
         except Exception as e:
             err = e.message
-            print err
-            # if (err['status_code'] == 422):
-            #     print("All import/export slots full.  Returning " + str(vm) + " to queue.")
-            # else:
-            #     print("Error creating export jobs.")
+            # print err
+            try:
+                if (err['status_code'] == 422):
+                    print("All import/export slots full.  Returning " + str(vm) + " to queue.")
+                    export_queue.put(vm)
+                    export_queue.task_done()
+                    sleep(60)
+
+            except:
+                    print("Error creating export jobs.")
+                    print err
+                    export_queue.task_done()
 
             vm_queue.put(vm)
             sleep(60)
