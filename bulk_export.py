@@ -39,6 +39,7 @@ def create_jobs(vm_queue):
         vm = vm_queue.get()
         logger.info("Create export job for VM " + str(vm) +".")
         try:
+            vm = export_queue.get(False)
             j = Exports().create(vm)
             sleep(5)
             job = Exports()[j]
