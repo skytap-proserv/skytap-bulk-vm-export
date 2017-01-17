@@ -1,5 +1,5 @@
 
-
+# import some modules
 import os
 import sys
 import urllib
@@ -9,7 +9,6 @@ import argparse
 import threading
 import Queue
 import logging
-
 from skytap.Templates import Templates
 from skytap.Exports import Exports
 
@@ -50,7 +49,7 @@ def create_jobs(export_queue):
             j = Exports().create(vm)
             sleep(5)
 
-            #create a downloader thread for this job
+            #create a downloader thread for this export job
             downloader = threading.Thread(target=download_job, args=(j,))
             downloader.setDaemon(False)
             downloader.start()
@@ -58,7 +57,7 @@ def create_jobs(export_queue):
             export_queue.task_done()
 
         except Queue.Empty:
-            logger.error("The export_queue is empty.")
+            logger.error("The export_queue is empty.  Exiting.")
             return
 
         except Exception as e:
@@ -79,7 +78,7 @@ def create_jobs(export_queue):
             continue
 
 def download_job(j):
-#    '''download export jobs from skytap and cleanup when finished'''
+    '''download export jobs from skytap and cleanup when finished.'''
     logger.debug("Start Download Thread: " + threading.current_thread().name,str(j) + " downloader")
     while True:
         try:
@@ -117,7 +116,7 @@ def download_job(j):
                 return
 
         else:
-            logger.error("Something went wrong")
+            logger.error("There was a problem. Job ID: " + str(job.id) + " Status: " + str(job.status) + ".")
             return
 
 def delete_job(id):
