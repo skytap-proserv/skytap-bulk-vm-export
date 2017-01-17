@@ -29,9 +29,14 @@ failed_downloads = Queue.Queue(maxsize = 0)
 def build_export_queue(templates):
     '''Load all the VMs from the template into the export_queue'''
     for id in templates:
-        template = Templates()[id]
-        for vm in template.vms:
-            export_queue.put(vm.id)
+        try:
+            template = Templates()[id]
+            for vm in template.vms:
+                export_queue.put(vm.id)
+
+        except KeyError:
+            logger.error("The template " + str(id) + " no longer exists. Continuing.")
+            continue
 
 def create_jobs(export_queue):
     '''pop a VM id from the export_queue and create a Skytap export job.'''
