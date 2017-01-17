@@ -13,6 +13,7 @@ import logging
 from skytap.Templates import Templates
 from skytap.Exports import Exports
 
+# setup logger
 logger = logging.getLogger('bulk-vm-export')
 handler = logging.StreamHandler()
 formatter = logging.Formatter('%(asctime)s %(name)-12s %(levelname)-8s %(message)s')
@@ -20,6 +21,7 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 logger.setLevel(logging.INFO)
 
+#setup queues
 export_queue = Queue.Queue(maxsize = 0)
 failed_downloads = Queue.Queue(maxsize = 0)
 
@@ -72,7 +74,7 @@ def create_jobs(export_queue):
             continue
 
 def download_job(j):
-#    '''download export jobs form skytap and cleanup when finished'''
+#    '''download export jobs from skytap and cleanup when finished'''
     logger.debug("Start Download Thread: " + threading.current_thread().name,str(j) + " downloader")
     while True:
         job = Exports()[j]
