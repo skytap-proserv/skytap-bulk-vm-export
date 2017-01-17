@@ -148,7 +148,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("-o", "--output_dir", type=str, help="Path to output directory.  A directory with the template ID will be created here, and your VMs will be placed inside.")
     parser.add_argument("-t", "--templates", nargs='+', type=int, help="Export a list of templates.  Takes space delimited template IDs as arguments.")
-    parser.add_argument("-v", "--vms", nargs='+', type=int, help="Export a list of virtual machines.  Takes space delimited VM IDs as arguments.")
+#    parser.add_argument("-v", "--vms", nargs='+', type=int, help="Export a list of virtual machines.  Takes space delimited VM IDs as arguments.")
     parser.add_argument("-d", "--download", type=int, help="Download a single job.  Takes single export job ID as an argument.")
     result = parser.parse_args()
 
@@ -162,12 +162,13 @@ if __name__ == '__main__':
         build_export_queue(templates)
         create_jobs(export_queue)
 
-    vms = result.vms
-    if result.vms:
-        '''Set up the vm queue thread.'''
-        for vm in vms:
-            export_queue.put(vm)
-        create_jobs(export_queue)
+    # this will be for a future feature - to add the ability to download specific VMs
+    # vms = result.vms
+    # if result.vms:
+    #     '''Set up the vm queue thread.'''
+    #     for vm in vms:
+    #         export_queue.put(vm)
+    #     create_jobs(export_queue)
 
     download = result.download
     if result.download:
@@ -177,7 +178,7 @@ if __name__ == '__main__':
 
 
 
-    # check for failed Downloads
+    # list of failed Downloads // not working right now - coming soon
     # l = list_failed_downloads
     # if l:
     #     print "The following downloads failed to complete:"
