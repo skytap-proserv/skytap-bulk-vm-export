@@ -13,8 +13,6 @@ import logging
 from skytap.Templates import Templates
 from skytap.Exports import Exports
 
-download_dir = '/Users/bwellington/Downloads'
-
 logger = logging.getLogger('bulk-vm-export')
 handler = logging.StreamHandler()
 formatter = logging.Formatter('%(asctime)s %(name)-12s %(levelname)-8s %(message)s')
@@ -96,7 +94,7 @@ def download_job(j):
                 return
 
             except:
-                logger.error("Download failed.  Try downloading this job again using bulk-export -d " + str(job.id) + ".")
+                logger.error("Download failed.  Try downloading this job again using bulk-export -o " + download_dir + "-d " + str(job.id) + ".")
                 failed_downloads.put(job.id)
                 return
 
@@ -128,10 +126,15 @@ def list_failed_downloads(failed_downloads):
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
+    parser.add_argument("-o", "--output_dir", type=str, help="path to output directory.")
     parser.add_argument("-t", "--templates", nargs='+', type=int, help="export a list of templates.  Takes space delimited template IDs as arguments.")
     parser.add_argument("-v", "--vms", nargs='+', type=int, help="export a list of virtual machines.  Takes space delimited VM IDs as arguments.")
     parser.add_argument("-d", "--download", type=int, help="download a single job.  Takes single export job ID as an argument.")
     result = parser.parse_args()
+
+    if result.output_dir:
+        download_dir = result.output_dir
+
 
     templates = result.templates
     if result.templates:
