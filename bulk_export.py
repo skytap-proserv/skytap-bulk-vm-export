@@ -77,7 +77,13 @@ def download_job(j):
 #    '''download export jobs from skytap and cleanup when finished'''
     logger.debug("Start Download Thread: " + threading.current_thread().name,str(j) + " downloader")
     while True:
-        job = Exports()[j]
+        try:
+            job = Exports()[j]
+        except:
+            logger.error("Unable to locate job " + str(j) +".  Are you sure it exists?")
+            failed_downloads.put(job.id)
+            return
+
         if job.status == "processing":
             logger.info("Job " + str(job.id) + " Status: " + str(job.status) )
             logger.info("Job " + str(job.id) + " Refreshing.")
