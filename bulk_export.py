@@ -1,6 +1,6 @@
 
 
-
+import os
 import sys
 import urllib
 from time import sleep
@@ -79,9 +79,14 @@ def download_job(j):
     while True:
         try:
             job = Exports()[j]
+        except KeyError:
+            logger.error("Download job " + str(j) + " no longer exists.")
+            return
+
+        try:
+            download_dir = create_download_directory(str(job.template_url))
         except:
-            logger.error("Unable to locate job " + str(j) +".  Are you sure it exists?")
-            failed_downloads.put(job.id)
+            logger.error("Unable to create download directory for " + str(job.template_url) + ".")
             return
 
         if job.status == "processing":
@@ -125,20 +130,26 @@ def list_failed_downloads(failed_downloads):
         except:
             return l
 
+def create_download_directory(template_url):
+    template_id = template_url.rsplit('/', 1)[-1]
+    download_dir = output_dir + '/' + template_id
+    if not os.path.exists(download_dir):
+        os.makedirs(download_dir)
 
+    return download_dir
 
 ##########################
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("-o", "--output_dir", type=str, help="path to output directory.")
-    parser.add_argument("-t", "--templates", nargs='+', type=int, help="export a list of templates.  Takes space delimited template IDs as arguments.")
-    parser.add_argument("-v", "--vms", nargs='+', type=int, help="export a list of virtual machines.  Takes space delimited VM IDs as arguments.")
-    parser.add_argument("-d", "--download", type=int, help="download a single job.  Takes single export job ID as an argument.")
+    parser.add_argument("-o", "--output_dir", type=str, help="Path to output directory.  A directory with the template ID will be created here, and your VMs will be placed inside.")
+    parser.add_argument("-t", "--templates", nargs='+', type=int, help="Export a list of templates.  Takes space delimited template IDs as arguments.")
+    parser.add_argument("-v", "--vms", nargs='+', type=int, help="Export a list of virtual machines.  Takes space delimited VM IDs as arguments.")
+    parser.add_argument("-d", "--download", type=int, help="Download a single job.  Takes single export job ID as an argument.")
     result = parser.parse_args()
 
     if result.output_dir:
-        download_dir = result.output_dir
+        output_dir = result.output_dir
 
 
     templates = result.templates
