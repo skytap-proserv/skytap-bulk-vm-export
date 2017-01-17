@@ -17,7 +17,7 @@ Version 1.1
     optional arguments:
       -h, --help            show this help message and exit
       -o OUTPUT_DIR, --output_dir OUTPUT_DIR
-                            path to output directory.
+                            path to output directory.  A directory with the template ID will be created here, and your VMs will be placed inside.
       -t TEMPLATES [TEMPLATES ...], --templates TEMPLATES [TEMPLATES ...]
                             export a list of templates. Takes space delimited
                             template IDs as arguments.
@@ -31,7 +31,8 @@ Version 1.1
 
 Generally, this script will be run using only the `-o` and `-t` options.  That is, a user will generally specify an output directory and one or more template ids.
 
-    -o  --output_dir      Specify an output directory other than the cwd.
+    -o  --output_dir      Specify an output directory other than the cwd.  A directory with the template ID
+                          will be created here, and the VMs will be downloaded into that.  For example if you are downloading template `12345`, and you specify ``"/path/to/downloads"`` as your `output_dir`, your VMs will be in `/path/to/downloads/12345/`.
 
     -t --templates        Specify a space delimited list of template ids to be exported and downloaded.
 
@@ -50,3 +51,7 @@ Generally, this script will be run using only the `-o` and `-t` options.  That i
 ## Examples
 
 `bulk-export.py -o /home/USERNAME/vm_downloads -t 12345`  Will download the VMs in template 12345 to the specified output directory.
+
+## Events for which this script will fall over
+
+- Loss of network connectivity, specifically to Skytap's API when a call is made will be fairly catastrophic.  The script will not recover gracefully from this situation.
