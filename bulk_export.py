@@ -23,6 +23,7 @@ logger.addHandler(handler)
 logger.setLevel(logging.INFO)
 
 export_queue = Queue.Queue(maxsize = 0)
+failed_downloads = Queue.Queue(maxsize = 0)
 
 
 def build_export_queue(templates):
@@ -95,7 +96,8 @@ def download_job(j):
                 return
 
             except:
-                logger.error("Download failed")
+                logger.error("Download failed.  Try downloading this job again using bulk-export -d " + str(job.id) + ".")
+                failed_downloads.put(job.id)
                 return
 
         else:
@@ -105,7 +107,22 @@ def download_job(j):
 def delete_job(id):
     Exports().delete(id)
 
+def list_failed_downloads(failed_downloads):
+    l = []
+    while True:
+        try:
+            f = failed_downloads.get(False)
+            l.append(f)
+            failed_downloads.task_done()
 
+        except:
+            return
+
+        print "The following downloads failed to complete:"
+        print '\n'.join(map(str, l))
+        print "You may attempt to download them again using the follwoing commands:"
+        for i in l:
+            print "bulk-export.py -d " + str(i)
 
 ##########################
 if __name__ == '__main__':
@@ -113,6 +130,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("-t", "--templates", nargs='+', type=int, help="export a list of templates.  Takes space delimited template IDs as arguments.")
     parser.add_argument("-v", "--vms", nargs='+', type=int, help="export a list of virtual machines.  Takes space delimited VM IDs as arguments.")
+    parser.add_argument("-d", "--download", type=int, help="download a single job.  Takes single export job ID as an argument.")
     result = parser.parse_args()
 
     templates = result.templates
@@ -128,6 +146,7 @@ if __name__ == '__main__':
             export_queue.put(vm)
         create_jobs(export_queue)
 
-    #     exporter = threading.Thread(target=create_jobs, args=(export_queue,))
-    #     exporter.setDaemon(False)
-    #     exporter.start()
+    download = result.download
+    if result.download:
+        '''Download single job.'''
+        download_job(download)
