@@ -32,8 +32,7 @@ Generally, this script will be run using only the `-o` and `-t` options.  That i
     -o  --output_dir      Specify an output directory other than the cwd.  A directory with the template ID
                           will be created here, and the VMs will be downloaded into that.  For example if you are downloading template `12345`, and you specify ``"/path/to/downloads"`` as your `output_dir`, your VMs will be in `/path/to/downloads/12345/`.
 
-    -v --vms              Specify a space delimited list of VM ids to be exported and downloaded.
-                          For use when you need to expprt/download a single VM from a template, but not the whole template.  Useful if something should go wrong during the template export process.
+    -t --templates        Specify a space delimited list of template ids to be exported and downloaded.
 
     -d --download         Specify a space delimited list of Export Job ids to be downloaded.  For use
                           when you need to download a single Export Job.  Useful if something should go wrong during the download process.
