@@ -120,15 +120,12 @@ def list_failed_downloads(failed_downloads):
             f = failed_downloads.get(False)
             l.append(f)
             failed_downloads.task_done()
+            return l
 
         except:
-            return
+            return l
 
-        print "The following downloads failed to complete:"
-        print '\n'.join(map(str, l))
-        print "You may attempt to download them again using the follwoing commands:"
-        for i in l:
-            print "bulk-export.py -d " + str(i)
+
 
 ##########################
 if __name__ == '__main__':
@@ -161,3 +158,15 @@ if __name__ == '__main__':
     if result.download:
         '''Download single job.'''
         download_job(download)
+
+
+
+
+    # check for failed Downloads
+    l = list_failed_downloads
+    if l:
+        print "The following downloads failed to complete:"
+        print '\n'.join(map(str, l))
+        print "You may attempt to download them again using the follwoing commands:"
+        for i in l:
+            print "bulk-export.py -o " + download_dir + "-d " + str(i)
