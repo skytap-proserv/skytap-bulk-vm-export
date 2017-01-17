@@ -25,11 +25,12 @@ logger.setLevel(logging.INFO)
 export_queue = Queue.Queue(maxsize = 0)
 
 
-def build_export_queue(template_id):
+def build_export_queue(templates):
     '''Load all the VMs from the template into the export_queue'''
-    template = Templates()[template_id]
-    for vm in template.vms:
-        export_queue.put(vm.id)
+    for id in templates:
+        template = Templates()[id]
+        for vm in template.vms:
+            export_queue.put(vm.id)
 
 def create_jobs(export_queue):
     '''pop a VM id from the export_queue and create a Skytap export job.'''
@@ -110,20 +111,22 @@ def delete_job(id):
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("-t", "--template", help="Queue up all the VMs in the template for exporting." +
-    "  Takes a template_id as an argument.")
+    parser.add_argument("-t", "--templates", nargs='+', type=int, help="export a list of templates.  Takes space delimited template IDs as arguments.")
+    parser.add_argument("-v", "--vms", nargs='+', type=int, help="export a list of virtual machines.  Takes space delimited VM IDs as arguments.")
     result = parser.parse_args()
 
-    template_id = int(result.template)
-
-
-
-
-    if result.template:
+    templates = result.templates
+    if result.templates:
         '''Set up the vm queue thread.'''
-        build_export_queue(template_id)
+        build_export_queue(templates)
         create_jobs(export_queue)
 
+    vms = result.vms
+    if result.vms:
+        '''Set up the vm queue thread.'''
+        for vm in vms:
+            export_queue.put(vm)
+        create_jobs(export_queue)
 
     #     exporter = threading.Thread(target=create_jobs, args=(export_queue,))
     #     exporter.setDaemon(False)
