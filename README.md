@@ -2,7 +2,7 @@
 
 Export VMs frm Skytap in bulk.
 
-Version 1.1
+Version 1.0
 
 ## Requirements
 
