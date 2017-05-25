@@ -1,7 +1,15 @@
+#!/usr/bin/env python
+#
+# bulk_export.py
+# v.2017-01-20
+#
+# by Bill Wellington (bwellington@skytap.com)
+
 
 # import some modules
 import os
 import sys
+import re
 import urllib
 from time import sleep
 import json
@@ -9,8 +17,18 @@ import argparse
 import threading
 import Queue
 import logging
-from skytap.Templates import Templates
-from skytap.Exports import Exports
+
+try:
+    import pathvalidate
+except:
+    print('the module "pathvalidate" is required.  Please install using "pip install pathvalidate".')
+
+
+try:
+    from skytap.Templates import Templates
+    from skytap.Exports import Exports
+except:
+    print('the module "skytap" is required.  Please install using "pip install skytap".')
 
 # setup logger
 logger = logging.getLogger('bulk-vm-export')
@@ -87,12 +105,6 @@ def download_job(j):
             logger.error("Download job " + str(j) + " no longer exists.")
             return
 
-        try:
-            download_dir = create_download_directory(str(job.template_url))
-        except:
-            logger.error("Unable to create download directory for " + str(job.template_url) + ".")
-            return
-
         if job.status == "processing":
             logger.info("Job " + str(job.id) + " Status: " + str(job.status) )
             logger.info("Job " + str(job.id) + " Refreshing.")
@@ -101,17 +113,19 @@ def download_job(j):
             continue
 
         elif job.status == 'complete':
+            download_dir = create_download_directory(str(job.template_url))
             try:
                 logger.info("Job " + str(job.id) + " Status: " + str(job.status))
                 logger.info("Downloading Job " + str(job.id))
+                posix_vm_name = sanitize_posix(str(job.vm_name))
                 urllib.urlretrieve(job.ftp_url, download_dir + '/' +
-                str(job.id) + '_' +job.vm_name + '.7z')
+                str(job.id) + '_' + posix_vm_name + '.7z')
                 delete_job(job.id)
                 logger.info("Job " + str(job.id) + " downloaded successfully!")
                 return
 
             except:
-                logger.error("Download failed.  Try downloading this job again using bulk-export -o " + download_dir + "-d " + str(job.id) + ".")
+                logger.error("Download failed.  Try downloading this job again using bulk_export.py -o " + outbut_dir + "-d " + str(job.id) + ".")
                 failed_downloads.put(job.id)
                 return
 
@@ -136,11 +150,20 @@ def list_failed_downloads(failed_downloads):
 
 def create_download_directory(template_url):
     template_id = template_url.rsplit('/', 1)[-1]
-    download_dir = output_dir + '/' + template_id
-    if not os.path.exists(download_dir):
-        os.makedirs(download_dir)
-
+    template_name = Templates()[int(template_id)]
+    posix_template_name = sanitize_posix(str(template_name))
+    download_dir = output_dir + '/' + str(template_id)  + "_" + str(posix_template_name)
+    try:
+        if not os.path.exists(str(download_dir)):
+            os.makedirs(str(download_dir))
+    except:
+        logger.error("download directory " + download_dir + " cannot be created.")
     return download_dir
+
+def sanitize_posix(string):
+    f = pathvalidate.sanitize_filename(str(string))
+    posix = "\\'".join("'" + p + "'" for p in f.split("'"))
+    return posix
 
 ##########################
 if __name__ == '__main__':
